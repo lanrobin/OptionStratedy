@@ -7,8 +7,8 @@ import multiprocessing
 
 DataRoot = "/datadrive/data"
 LogRoot = "/datadrive//log.txt"
-Holidays = "/datadrive/github/OptionStragtedy/holidays.txt"
-SymbolRoot = "/datadrive/github/OptionStragtedy"
+Holidays = "/datadrive/github/OptionStratedy/holidays.txt"
+SymbolRoot = "/datadrive/github/OptionStratedy"
 
 def DownloadAllData(symbol, date):
     if date.dayofweek == 5 or date.dayofweek == 6:
