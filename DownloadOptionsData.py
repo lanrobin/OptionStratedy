@@ -15,7 +15,7 @@ Holidays = "/datadrive/github/OptionStratedy/holidays.txt"
 SymbolRoot = "/datadrive/github/OptionStratedy"
 
 def DownloadAllData(symbol):
-    #date = pd.Timestamp("2020-11-20")
+    date = pd.Timestamp("2020-11-20")
     #date = pd.Timestamp.now()
     if date.dayofweek == 5 or date.dayofweek == 6:
         logging.info("weekend, stock market is closed.")
@@ -52,6 +52,7 @@ def DownloadAllData(symbol):
                     readmef.writelines(",".join(chain.calls.columns) +"\n")
                     readmef.writelines("PUT COLUMNS:")
                     readmef.writelines(",".join(chain.puts.columns) +"\n")
+                    readmef.writelines("GETDATE:" + dateStr +"\n")
             with open(datePathStr +"/calls"+ exp +".csv", "w") as callf:
                 for call in chain.calls.values:
                     callf.writelines(",".join(map(str, call)) + "\n")
@@ -82,7 +83,7 @@ def GetAllData():
     allSymbols = list(set(allSymbols))
     num_cores = multiprocessing.cpu_count()
     logging.info("There are " + str(num_cores) + " CPU(s) on this computer.")
-    with ThreadPoolExecutor(2 * num_cores) as executor:
+    with ThreadPoolExecutor(5 * num_cores) as executor:
        results = executor.map(DownloadAllData, allSymbols)
        for result in results:
            logging.info("Result:" + str(result))
