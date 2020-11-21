@@ -5,10 +5,10 @@ from loguru import logger
 from joblib import Parallel, delayed
 import multiprocessing
 
-DataRoot = "D:\\data\\details"
-LogRoot = "D:\\data\\log.txt"
-Holidays = "D:\\data\\holidays.txt"
-SymbolRoot = "D:\\data"
+DataRoot = "/datadrive/data"
+LogRoot = "/datadrive//log.txt"
+Holidays = "/datadrive/github/holidays.txt"
+SymbolRoot = "/datadrive/github"
 
 def DownloadAllData(symbol, date):
     if date.dayofweek == 5 or date.dayofweek == 6:
