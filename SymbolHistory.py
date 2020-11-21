@@ -16,6 +16,7 @@ def GetOneStockHistory(sym):
 with open(DataRoot +"\\symbols.txt", encoding="utf-8") as s:
     lines = s.read().splitlines()
     num_cores = multiprocessing.cpu_count()
+    Parallel.print_progress = 
     Parallel(n_jobs=num_cores)(delayed(GetOneStockHistory)(i) for i in lines)
     #for i in lines:
     #    GetOneStockHistory(i)
