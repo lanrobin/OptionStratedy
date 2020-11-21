@@ -1,9 +1,11 @@
 import yfinance as yf
 import pandas as pd
 import os
-from loguru import logger
+import logging
+from logging.handlers import RotatingFileHandler
 from joblib import Parallel, delayed
 import multiprocessing
+import sys
 from sys import platform
 
 
@@ -14,30 +16,30 @@ SymbolRoot = "/datadrive/github/OptionStratedy"
 
 def DownloadAllData(symbol, date):
     if date.dayofweek == 5 or date.dayofweek == 6:
-        logger.debug("weekend, stock market is closed.")
+        logging.debug("weekend, stock market is closed.")
         return
     dateStr = date.strftime("%Y-%m-%d")
     if IsHoliday(dateStr):
-        logger.debug("Holiday, stock market is closed.")
+        logging.debug("Holiday, stock market is closed.")
         return
     s = yf.Ticker(symbol)
 
     #确保这个目录存在
     symbolPath = DataRoot +"/" +symbol
     os.makedirs(symbolPath, exist_ok = True)
-    logger.debug("Get stock price for " + symbol +" at " + dateStr)
+    logging.debug("Get stock price for " + symbol +" at " + dateStr)
     try:
         todayData = s.history(period="1d", interval="1d", start=dateStr)
         with open(symbolPath +"/stock.csv", "a") as stock:
             stock.write(dateStr +",")
             stock.writelines(",".join(map(str, todayData.values[-1]))+ "\n", )
     except Exception as e:
-        logger.error("Get history for" + symbol + " get exception:" + str(e))
+        logging.error("Get history for" + symbol + " get exception:" + str(e))
 
     datePathStr = symbolPath +"/" + dateStr
     try:
         expirations = s.options
-        logger.debug("Get options for " + symbol +" at " + dateStr + ". There are " + str(len(expirations)) +" expirations.")
+        logging.debug("Get options for " + symbol +" at " + dateStr + ". There are " + str(len(expirations)) +" expirations.")
         os.makedirs(datePathStr, exist_ok = True)
         for exp in expirations:
             chain = s.option_chain(exp)
@@ -53,9 +55,9 @@ def DownloadAllData(symbol, date):
             with open(datePathStr +"/puts" + exp +".csv", "w") as putf:
                 for put in chain.puts.values:
                     putf.writelines(",".join(map(str, put)) + "\n")
-        logger.debug("Got options for " + symbol +" at " + dateStr)
+        logging.debug("Got options for " + symbol +" at " + dateStr)
     except Exception as ex:
-        logger.error("Get options for " + symbol +" with exception:" + str(ex))
+        logging.error("Get options for " + symbol +" with exception:" + str(ex))
 
 S_Holidays_List = []
 
@@ -75,13 +77,13 @@ def GetAllData():
     allSymbols = list(set(allSymbols))
 
     num_cores = multiprocessing.cpu_count()
-    logger.debug("There are " + str(num_cores) + " CPU(s) on this computer.")
+    logging.debug("There are " + str(num_cores) + " CPU(s) on this computer.")
     #fetchDate = pd.Timestamp.now()
     fetchDate = pd.Timestamp("2020-11-20")
-    #Parallel(n_jobs=num_cores)(delayed(DownloadAllData)(i, fetchDate) for i in allSymbols)
-    for s in allSymbols:
+    Parallel(n_jobs=num_cores)(delayed(DownloadAllData)(symbol = i, date = fetchDate) for i in allSymbols)
+    #for s in allSymbols:
         #DownloadAllData(s, pd.Timestamp.now())
-        DownloadAllData(s, fetchDate)
+        #DownloadAllData("BF.B", fetchDate)
 
 
     
@@ -95,6 +97,13 @@ if __name__ == '__main__':
         Holidays = "d:/github/OptionStratedy/holidays.txt"
         SymbolRoot = "D:/github/OptionStratedy"
 
-    logger.add(LogRoot, rotation="512 MB")
+    logging.basicConfig(
+            level=logging.INFO,
+            format="%(asctime)s [%(levelname)s] %(message)s",
+            handlers=[
+                logging.FileHandler(LogRoot),
+                logging.StreamHandler()
+            ]
+        )
 #    DownloadAllData("msft", pd.Timestamp("2020-11-20"))
     GetAllData()
