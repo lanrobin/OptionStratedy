@@ -4,6 +4,8 @@ import os
 from loguru import logger
 from joblib import Parallel, delayed
 import multiprocessing
+from sys import platform
+
 
 DataRoot = "/datadrive/data"
 LogRoot = "/datadrive//log.txt"
@@ -35,7 +37,7 @@ def DownloadAllData(symbol, date):
     datePathStr = symbolPath +"/" + dateStr
     try:
         expirations = s.options
-        logger.debug("Get options for " + symbol +" at " + dateStr + ". There are " + len(expirations) +" expirations.")
+        logger.debug("Get options for " + symbol +" at " + dateStr + ". There are " + str(len(expirations)) +" expirations.")
         os.makedirs(datePathStr, exist_ok = True)
         for exp in expirations:
             chain = s.option_chain(exp)
@@ -86,6 +88,13 @@ def GetAllData():
 if __name__ == '__main__':
 #    print(IsHoliday("2021-1-1"))
 #    print(IsHoliday("2021-1-2"))
+
+    if platform == "win32":
+        DataRoot = "d:/data"
+        LogRoot = "d:/data/log.txt"
+        Holidays = "d:/github/OptionStratedy/holidays.txt"
+        SymbolRoot = "D:/github/OptionStratedy"
+
     logger.add(LogRoot, rotation="512 MB")
 #    DownloadAllData("msft", pd.Timestamp("2020-11-20"))
     GetAllData()
