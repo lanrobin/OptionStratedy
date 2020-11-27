@@ -1,15 +1,19 @@
 import pandas as pd
 import math
 
+DataRoot = "D:\\data"
+
 def GetWeeklyVolatility(filePath):
     result = []
     with open(filePath) as f:
         lines = f.read().splitlines()
         startingPrice = 0
         endPrice = 0
+        weeklyHigh = 0
+        weeklyLow = 0
         isTheFirstDayOfWeek = False
         lastDay = -1
-        for line in lines:
+        for line in lines[1:]:
             parts = line.split(',')
             date = pd.Timestamp(parts[0])
 
@@ -17,23 +21,30 @@ def GetWeeklyVolatility(filePath):
                 ## 如果是下一周的开始了。就是算上一周的波动幅度了。
                 v = (endPrice - startingPrice)/startingPrice * 100
                 #print(v)
-                result.append([v, startingPrice, endPrice])
+                result.append([v, startingPrice, endPrice, weeklyHigh, weeklyLow])
                 isTheFirstDayOfWeek = False
                 lastDay = -1
                 startingPrice = 0
                 endPrice = 0
+                weeklyHigh = 0
+                weeklyLow = 0
+
             ## 找到开盘价。
             if not isTheFirstDayOfWeek:
                 isTheFirstDayOfWeek = True
                 startingPrice = float(parts[1])
+                weeklyHigh = float(parts[2])
+                weeklyLow = float(parts[3])
             
+            weeklyHigh = max(weeklyHigh, float(parts[2]))
+            weeklyLow = min(weeklyLow, float(parts[3]))
             lastDay = date.dayofweek
             endPrice = float(parts[4])
         if isTheFirstDayOfWeek:
             ## 计算最后一次的。
             v = (endPrice - startingPrice)/startingPrice * 100
             #print(v)
-            result.append([v, startingPrice, endPrice])
+            result.append([v, startingPrice, endPrice, weeklyHigh, weeklyLow])
     return result
 
 def SellCoveredCall(v, atPercentage, optionPricePrecentage):
@@ -65,7 +76,12 @@ def SellCoveredCall(v, atPercentage, optionPricePrecentage):
 
 
 
-v = GetWeeklyVolatility("D:\\data\\KO.csv")
+v = GetWeeklyVolatility("D:\\data\\PFE.csv")
+
+with open(DataRoot +"\\PFEweekly.csv", "w") as f:
+    for l in v:
+        f.writelines(",".join(map(str, l)) + "\n")
+
 total = SellCoveredCall(v, 1, 0.012)
 
 print("最后的总价值是：" + str(total) +",初始资金是:" + str(v[0][1]))
