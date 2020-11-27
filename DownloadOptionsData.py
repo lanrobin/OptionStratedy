@@ -15,8 +15,8 @@ Holidays = "/datadrive/github/OptionStratedy/holidays.txt"
 SymbolRoot = "/datadrive/github/OptionStratedy"
 
 def DownloadAllData(symbol):
-    date = pd.Timestamp("2020-11-20")
-    #date = pd.Timestamp.now()
+    #date = pd.Timestamp("2020-11-20")
+    date = pd.Timestamp.now()
     if date.dayofweek == 5 or date.dayofweek == 6:
         logging.info("weekend, stock market is closed.")
         return
@@ -37,6 +37,15 @@ def DownloadAllData(symbol):
             stock.writelines(",".join(map(str, todayData.values[-1]))+ "\n", )
     except Exception as e:
         logging.error("Get history for" + symbol + " get exception:" + str(e))
+        allDataFetched = False
+
+    try:
+        dividends = s.dividends
+        with open(symbolPath +"/dividends.csv", "a") as stock:
+            for d in dividends:
+                stock.writelines(",".join(map(str, todayData.values[-1]))+ "\n", )
+    except Exception as e:
+        logging.error("Get dividends for" + symbol + " get exception:" + str(e))
         allDataFetched = False
 
     datePathStr = symbolPath +"/" + dateStr

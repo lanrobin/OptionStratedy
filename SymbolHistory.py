@@ -1,18 +1,21 @@
-from yahoo_historical import Fetcher
+import yfinance as yf
 import multiprocessing
 import logging
 from logging.handlers import RotatingFileHandler
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+import pandas as pd
 
 DataRoot = "D:\\data"
 
 def GetOneStockHistory(sym):
-    fc = Fetcher(sym, [2000, 1, 1], [2020, 11, 27])
+    date = pd.Timestamp.now()
+    s = yf.Ticker(sym)
+    dateStr = date.strftime("%Y-%m-%d")
     print("开始获取" + sym)
+    data = s.history(interval="1d", start="2000-1-1", end=dateStr)
     with open(DataRoot +"\\" + sym +".csv", "w") as f:
-        data = fc.getHistorical()
-        f.writelines(",".join(map(str, data.columns)) + "\n")
-        for item in data.values:
+        for index, item in zip(data.index.date, data.values):
+            f.writelines(str(index) +",")
             f.writelines(",".join(map(str, item))+ "\n")
     print("完成获取" + sym)
 
