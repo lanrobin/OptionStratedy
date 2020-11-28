@@ -2,7 +2,7 @@ import pandas as pd
 import math
 
 DataRoot = "D:\\data"
-SymbolName = "PFE"
+SymbolName = "QQQ"
 
 def GetWeeklyVolatility(filePath):
     result = []
@@ -115,7 +115,7 @@ def SellCoveredCall(v, atPercentage, optionPricePrecentage, initialStockCount):
             optionExecuted = True
 
         totalValue += (lostLastWeek + optionPrice + executedIncreasementLastWeek) * numberOfShare
-        print("上周损失：" + str(lostLastWeek * numberOfShare) + "，收取期权费:" + str(optionPrice * numberOfShare) +",行权增量：" + str(executedIncreasementLastWeek)
+        print(i[0] + ",上周损失：" + str(lostLastWeek * numberOfShare) + "，收取期权费:" + str(optionPrice * numberOfShare) +",行权增量：" + str(executedIncreasementLastWeek)
         + "总价值:" + str(totalValue) + "持股数：" + str(numberOfShare) +"手续费:" + str(OptionOperationFee + StockOperationFee) + ", 分红：" + str(dividendThisWeek))
         lostLastWeek = 0
         executedIncreasementLastWeek = 0
@@ -145,7 +145,9 @@ v = GetWeeklyVolatility(DataRoot + "\\"+ SymbolName +".csv")
 
 WriteToFile(v, DataRoot +"\\"+ SymbolName +"weekly.csv")
 
-numberOfInitialShare = 300
-total = SellCoveredCall(v, 4.0, 0.0025, numberOfInitialShare)
+numberOfInitialShare = 1000
+total = SellCoveredCall(v, 4.0, 0.0011, numberOfInitialShare)
 
-print("最后的总价值是：" + str(total) +",初始资金是:" + str(v[0][2] * numberOfInitialShare))
+initialValue = v[0][2] * numberOfInitialShare
+increasedfolder = total/initialValue
+print("最后的总价值是：" + str(total) +",初始资金是:" + str(initialValue) +"增长了" + str(increasedfolder) +"倍，20年年收益是：" + str(pow(increasedfolder, 1.0/20)))
