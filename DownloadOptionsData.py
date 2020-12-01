@@ -15,7 +15,7 @@ Holidays = "/datadrive/github/OptionStratedy/holidays.txt"
 SymbolRoot = "/datadrive/github/OptionStratedy"
 
 def DownloadAllData(symbol):
-    #date = pd.Timestamp("2020-11-20")
+    #date = pd.Timestamp("2020-11-30")
     date = pd.Timestamp.now()
     if date.dayofweek == 5 or date.dayofweek == 6:
         logging.info("weekend, stock market is closed.")
@@ -85,14 +85,14 @@ def IsHoliday(datestr):
 
 def GetAllData():
     allSymbols = []
-    symbolFiles = ["DJIA.txt", "nasdaq100.txt", "SP500.txt"]
+    symbolFiles = ["DJIA.txt", "nasdaq100.txt", "SP500.txt", "Index.txt"]
     for sf in symbolFiles:
         with open(SymbolRoot +"/" + sf) as df:
             allSymbols.extend(df.read().splitlines())
     allSymbols = list(set(allSymbols))
     num_cores = multiprocessing.cpu_count()
     logging.info("There are " + str(num_cores) + " CPU(s) on this computer.")
-    with ThreadPoolExecutor(5 * num_cores) as executor:
+    with ThreadPoolExecutor(2 * num_cores) as executor:
        results = executor.map(DownloadAllData, allSymbols)
        for result in results:
            logging.info("Result:" + str(result))
@@ -117,5 +117,5 @@ if __name__ == '__main__':
             logging.StreamHandler()
         ]
 )
-#    DownloadAllData("msft", pd.Timestamp("2020-11-20"))
+#    DownloadAllData("BA")
     GetAllData()
