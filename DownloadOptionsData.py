@@ -117,5 +117,5 @@ if __name__ == '__main__':
             logging.StreamHandler()
         ]
 )
-#    DownloadAllData("BA")
-    GetAllData()
+    DownloadAllData("T")
+#    GetAllData()
